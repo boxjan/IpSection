@@ -15,7 +15,3 @@
 ISO 3166
 
 考虑到部分IP被广播到全世界各地 所以使用了 IPIP.net 免费数据库 GeoLite免费数据库 作为辅助验证
-
-
-### 开发环境 Python 3.6 Win64
-Python还在学习中
