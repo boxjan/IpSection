@@ -1,9 +1,11 @@
 #!/bin/python3
 
 from abc import ABCMeta, abstractmethod
+from urllib import request
 import csv
 import os
 import time
+import shutil
 
 
 class IPBase(metaclass=ABCMeta):
@@ -13,6 +15,8 @@ class IPBase(metaclass=ABCMeta):
     continent = {}
     __path = os.path.abspath(".") + "/"
     path = ""
+    ip_type = {'ipv4', 'ipv6'}
+    ip_accuracy = {'country', 'continent'}
 
     def __init__(self):
         self.get_today_path()
@@ -37,6 +41,16 @@ class IPBase(metaclass=ABCMeta):
     def download_date(self):
         return
 
+    def download(self, url, save):
+        print("start download " + url)
+        # noinspection PyBroadException
+        try:
+            request.urlretrieve(url, save)
+        except Exception:
+            return [False, url]
+        else:
+            return [True, url]
+
     def country_to_continent(self, country_code):
 
         return self.continent[country_code]
@@ -57,5 +71,4 @@ class IPBase(metaclass=ABCMeta):
         f.close()
 
     def __del__(self):
-        import shutil
         shutil.rmtree(self.path + "temp/")

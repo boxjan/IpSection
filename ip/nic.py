@@ -1,67 +1,77 @@
 from ip.ip_base import IPBase
-from urllib import request
 import os
 import shutil
 import math
 
 
 class Nic(IPBase):
+    temp_path = ""
+    date_path = ""
 
     def __init__(self):
         super().__init__()
+        self.temp_path = self.path + "temp/"
+        self.date_path = self.path + __name__.split('.')[-1] + "/"
+        self.make_work_dir()
 
     def main(self):
         self.download_date()
-        self.read_data()
+
+        for file in os.listdir(self.temp_path):
+            if os.path.isfile(self.temp_path + file):
+                print("Handle " + self.temp_path + file)
+                self.deal_data(self.temp_path + file)
 
     def download_date(self):
-        download_url = {'http://inan-data.boxjan.li/delegated-afrinic-extended-latest',
-                        'http://inan-data.boxjan.li/delegated-apnic-extended-latest',
-                        'http://inan-data.boxjan.li/delegated-arin-extended-latest',
-                        'http://inan-data.boxjan.li/delegated-lacnic-extended-latest',
-                        'http://inan-data.boxjan.li/delegated-ripencc-extended-latest'}
-        temp_path = self.path + "temp/"
-        self.make_dir(temp_path)
+        download_url = {r'http://inan-data.boxjan.li/delegated-afrinic-extended-latest',
+                        r'http://inan-data.boxjan.li/delegated-apnic-extended-latest',
+                        r'http://inan-data.boxjan.li/delegated-arin-extended-latest',
+                        r'http://inan-data.boxjan.li/delegated-lacnic-extended-latest',
+                        r'http://inan-data.boxjan.li/delegated-ripencc-extended-latest'}
 
-        for url in download_url:
-            print("start download " + url)
-            request.urlretrieve(url, temp_path + url.split('/')[-1])
-            print("download " + url + " success")
+        import concurrent.futures
 
-    def read_data(self):
-        path = self.path + "temp/"
-        if os.path.exists(self.path + "nic/"):
-            shutil.rmtree(self.path + "nic/")
-        self.make_dir(self.path + "nic/country/ipv4")
-        self.make_dir(self.path + "nic/country/ipv6")
-        self.make_dir(self.path + "nic/continent/ipv4")
-        self.make_dir(self.path + "nic/continent/ipv6")
-        for file in os.listdir(path):
-            print(path + file)
-            if os.path.isfile(path + file):
-                self.deal_data(path + file)
+        with concurrent.futures.ThreadPoolExecutor(7) as executor:
+            status = {executor.submit(self.download, url, self.temp_path + url.split('/')[-1]): url for url in download_url}
 
+            for future in concurrent.futures.as_completed(status):
+                status, url = future.result()
+                if status is True:
+                    print(url.split('/')[-1], "down success")
+                else:
+                    print(url.split('/')[-1], "down success down fail\n Please Check Url")
+
+    def make_work_dir(self):
+        if os.path.exists(self.date_path):
+            shutil.rmtree(self.date_path)
+
+        self.make_dir(self.date_path)
+        self.make_dir(self.temp_path)
+
+        for ip_accuracy in self.ip_accuracy:
+            for ip_type in self.ip_type:
+                self.make_dir(self.date_path + "/".join([ip_accuracy, ip_type]))
 
     def deal_data(self, file_name):
-        path = {'country':{}, 'continent':{}}
-        path['country']['ipv4'] = self.path + "nic/country/ipv4/"
-        path['country']['ipv6'] = self.path + "nic/country/ipv6/"
-        path['continent']['ipv4'] = self.path + "nic/continent/ipv4/"
-        path['continent']['ipv6'] = self.path + "nic/continent/ipv6/"
+        path = {'country': {}, 'continent': {}}
+        for ip_accuracy in self.ip_accuracy:
+            for ip_type in self.ip_type:
+                path[ip_accuracy][ip_type] = self.date_path + "/".join([ip_accuracy, ip_type]) + "/"
 
-        file = open(file_name)
         country_file_group = {'ipv4': {}, 'ipv6': {}}
         continent_file_group = {'ipv4': {}, 'ipv6': {}}
         continent = {"AS", "EU", "ZZ", "NA", "SA", "OC", "AQ", "AF"}
+
         for i in continent:
             continent_file_group['ipv4'][i] = open(path['continent']['ipv4'] + i, "a+")
             continent_file_group['ipv6'][i] = open(path['continent']['ipv6'] + i, "a+")
 
+        file = open(file_name)
         for line in file:
             if len(line.split('|')) != 8:
                 continue
 
-            nic_name, country_code, ip_type, ip, num, date, status, asnum = line.split('|')
+            nic_name, country_code, ip_type, ip, num, date, status, info = line.split('|')
             if ip_type == "asn":
                 continue
 
@@ -78,3 +88,6 @@ class Nic(IPBase):
         for k, v in country_file_group.items():
             for key, i in v.items():
                 i.close()
+
+    if __name__ == '__main__':
+        main()
