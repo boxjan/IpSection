@@ -1,5 +1,4 @@
 from ip.nic import Nic
 
-run = Nic()
-
-run.main()
+nic = Nic()
+nic.main()
