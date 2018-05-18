@@ -10,8 +10,13 @@
 * [ARIN](ftp://ftp.apnic.net/pub/stats/arin/delegated-arin-extended-latest) 
 * [AFRINIC](ftp://ftp.apnic.net/pub/stats/afrinic/delegated-afrinic-extended-latest) 
 * [APNIC](ftp://ftp.apnic.net/pub/stats/apnic/delegated-apnic-extended-latest) 
+* [IPIP](http://ipip.net)
+* [GeoLite](http://dev.maxmind.com)
+
+http://inan-data.boxjan.li/ 提供了 NIC 的数据拷贝
 
 #### 国家及其所属大洲
-ISO 3166
+国家名称缩写遵循 ISO 3166
+数据来源 MaxMind GeoLite
 
-考虑到部分IP被广播到全世界各地 所以使用了 IPIP.net 免费数据库 GeoLite免费数据库 作为辅助验证
+考虑到部分IP被广播到全世界各地 所以使用了 ipip.net 免费数据库 GeoLite免费数据库 作为辅助验证
