@@ -20,3 +20,8 @@ http://inan-data.boxjan.li/ 提供了 NIC 的数据拷贝
 数据来源 MaxMind GeoLite
 
 考虑到部分IP被广播到全世界各地 所以使用了 ipip.net 免费数据库 GeoLite免费数据库 作为辅助验证
+
+## 使用方法
+git clone 后进入目录 
+然后执行 ``` python3 main.py``` 
+会在目录下生成文件夹 data 和 日期目录，进入之后会有不同数据来源的文件夹 ，进入后按洲和国家，ipv4和ipv6分文件夹
